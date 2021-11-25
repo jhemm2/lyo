@@ -13,6 +13,9 @@
  */
 package org.eclipse.lyo.oslc4j.core;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
@@ -29,6 +32,11 @@ import javax.ws.rs.core.UriBuilder;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
@@ -41,6 +49,7 @@ import org.eclipse.lyo.oslc4j.core.model.ResourceShape;
 import org.eclipse.lyo.oslc4j.core.model.XMLLiteral;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 
 public class OSLC4JUtils {
@@ -738,4 +747,22 @@ public class OSLC4JUtils {
 		}
 		return null;
 	}
+
+    public static boolean isWellFormed(String xmlLiteral) {
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            InputStream targetStream = new ByteArrayInputStream(xmlLiteral.getBytes());
+            db.parse(targetStream);
+            return true;
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("XML Validator cannot be initialized");
+        } catch (IOException | SAXException e) {
+            return false;
+        }
+    }
+
+    public static boolean isWellFormed(XMLLiteral literal) {
+        return isWellFormed(literal.getValue());
+    }
 }
