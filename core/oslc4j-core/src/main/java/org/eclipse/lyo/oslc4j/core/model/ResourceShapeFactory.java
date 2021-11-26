@@ -13,33 +13,18 @@
  */
 package org.eclipse.lyo.oslc4j.core.model;
 
+import org.eclipse.lyo.oslc4j.core.annotation.*;
+import org.eclipse.lyo.oslc4j.core.exception.*;
+
+import javax.ws.rs.core.UriBuilder;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-import javax.ws.rs.core.UriBuilder;
-import org.eclipse.lyo.oslc4j.core.annotation.*;
-import org.eclipse.lyo.oslc4j.core.exception.OslcCoreApplicationException;
-import org.eclipse.lyo.oslc4j.core.exception.OslcCoreDuplicatePropertyDefinitionException;
-import org.eclipse.lyo.oslc4j.core.exception.OslcCoreInvalidOccursException;
-import org.eclipse.lyo.oslc4j.core.exception.OslcCoreInvalidPropertyDefinitionException;
-import org.eclipse.lyo.oslc4j.core.exception.OslcCoreInvalidPropertyTypeException;
-import org.eclipse.lyo.oslc4j.core.exception.OslcCoreInvalidRepresentationException;
-import org.eclipse.lyo.oslc4j.core.exception.OslcCoreInvalidValueTypeException;
-import org.eclipse.lyo.oslc4j.core.exception.OslcCoreMissingAnnotationException;
-import org.eclipse.lyo.oslc4j.core.exception.OslcCoreMissingSetMethodException;
 
 public class ResourceShapeFactory {
 	protected static final String METHOD_NAME_START_GET = "get";
@@ -73,6 +58,8 @@ public class ResourceShapeFactory {
 		CLASS_TO_VALUE_TYPE.put(String.class,	  ValueType.String);
 		CLASS_TO_VALUE_TYPE.put(Date.class,		  ValueType.DateTime);
 		CLASS_TO_VALUE_TYPE.put(URI.class,		  ValueType.Resource);
+
+		CLASS_TO_VALUE_TYPE.put(XMLLiteral.class,		  ValueType.XMLLiteral);
 	}
 
 	protected ResourceShapeFactory() {
@@ -285,7 +272,7 @@ public class ResourceShapeFactory {
 
         validateUserSpecifiedValueType(resourceClass, method, valueType, representation, componentType);
         validateUserSpecifiedRepresentation(resourceClass, method, representation, componentType);
-		if ((ValueType.LocalResource.equals(valueType)) 
+		if ((ValueType.LocalResource.equals(valueType))
 		    || (ValueType.Resource.equals(valueType) && (null != representation) && (Representation.Inline.equals(representation)))) {
 			// If this is a nested class we potentially have not yet verified
 			if (verifiedClasses.add(componentType)) {
@@ -438,27 +425,30 @@ public class ResourceShapeFactory {
 		// user-specified value type is xml literal and calculated value type is string
 		// or
 		// user-specified value type is decimal and calculated value type is numeric
-		if ((userSpecifiedValueType.equals(calculatedValueType))
-			||
-			(ValueType.LocalResource.equals(userSpecifiedValueType))
-			||
-            (ValueType.Resource.equals(userSpecifiedValueType) && (null != userSpecifiedRepresentation) && (Representation.Inline.equals(userSpecifiedRepresentation)))
+        if ((userSpecifiedValueType.equals(calculatedValueType))
             ||
-			((ValueType.XMLLiteral.equals(userSpecifiedValueType))
-			 &&
-			 (ValueType.String.equals(calculatedValueType))
-			)
-			||
-			((ValueType.Decimal.equals(userSpecifiedValueType))
-			 &&
-			 ((ValueType.Double.equals(calculatedValueType))
-			  ||
-			  (ValueType.Float.equals(calculatedValueType))
-			  ||
-			  (ValueType.Integer.equals(calculatedValueType))
-			 )
-			)
-		   ) {
+            (ValueType.LocalResource.equals(userSpecifiedValueType))
+            ||
+            (ValueType.Resource.equals(userSpecifiedValueType)
+                && (Representation.Inline.equals(userSpecifiedRepresentation)))
+            ||
+            ((ValueType.XMLLiteral.equals(userSpecifiedValueType))
+                &&
+                (ValueType.String.equals(calculatedValueType)
+//                    || ValueType.XMLLiteral.equals(calculatedValueType)
+                )
+            )
+            ||
+            ((ValueType.Decimal.equals(userSpecifiedValueType))
+                &&
+                ((ValueType.Double.equals(calculatedValueType))
+                    ||
+                    (ValueType.Float.equals(calculatedValueType))
+                    ||
+                    (ValueType.Integer.equals(calculatedValueType))
+                )
+            )
+        ) {
 			// We have a valid user-specified value type for our Java type
 			return;
 		}
@@ -471,7 +461,7 @@ public class ResourceShapeFactory {
 	    // User-specified representation is reference and component is not URI
 		// or
 		// user-specified representation is inline and component is a standard class
-	    
+
 	    if (null == userSpecifiedRepresentation) {
 	        return;
 	    }
