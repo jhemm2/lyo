@@ -5,6 +5,7 @@
 ### Added
 
 - [Core] Add a oslc:name and dcterms:description attributes to the ResourceShape class so that such information can appear in the shape documentation.
+- [Core] You can now use the `OSLC4JUtils.isWellFormed()` helper to check if the String you have contains a well-formed RDF XMLLiteral. 
 - [Client ]Support for Configuration Management was first added in 2.4 and was accidentally removed during the monorepo migration and the 4.0 release. [PR #205](https://github.com/eclipse/lyo/pull/206) adds this support back. Thanks to @isccarrasco!
 - [Domains] Add `org.eclipse.lyo.domains:ui-classes` module with POJOs needed by [lyo.oslc-ui](https://github.com/eclipse/lyo.oslc-ui).
 - [UI] Support for displaying inlined properties as links
