@@ -105,6 +105,11 @@
         <artifactId>oslc-client</artifactId>
         <version>${v.lyo}</version>
       </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.core</groupId>
+        <artifactId>jersey-client</artifactId>
+        <version>${v.jersey}</version>
+      </dependency>
 
       <!--TEST-->
       <dependency>
@@ -123,12 +128,6 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
         <version>${v.slf4j}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.glassfish.jersey.core</groupId>
-        <artifactId>jersey-client</artifactId>
-        <version>${v.jersey}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
