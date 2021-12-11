@@ -13,30 +13,28 @@
  */
 package org.eclipse.lyo.oslc4j.core.servlet;
 
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.eclipse.lyo.core.utils.marshallers.LyoConfigUtil;
 import org.eclipse.lyo.oslc4j.core.OSLC4JUtils;
 import org.eclipse.lyo.oslc4j.core.model.ServiceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ServletListener
 	   implements ServletContextListener
 {
-	private static final String PROPERTY_SCHEME = ServletListener.class.getPackage().getName() + ".scheme";
-	private static final String PROPERTY_PORT	= ServletListener.class.getPackage().getName() + ".port";
+    private static final Logger log = LoggerFactory.getLogger(ServletListener.class);
 
-	private static final Logger logger = Logger.getLogger(ServletListener.class.getName());
+    public static final String DEFAULT_SCHEME = "http";
+    public static final String DEFAULT_HOST = LyoConfigUtil.getHost();
+    public static final String DEFAULT_PORT = "8080";
 
-	private static final String HOST = getHost();
-
-	private String serviceProviderIdentifier;
+    private String serviceProviderIdentifier;
 
 	public ServletListener()
 	{
@@ -54,7 +52,7 @@ public class ServletListener
 			}
 			catch (final Exception exception)
 			{
-				logger.log(Level.SEVERE, "Unable to deregister with service provider catalog", exception);
+				log.error("Unable to deregister with service provider catalog", exception);
 			}
 			finally
 			{
@@ -70,30 +68,23 @@ public class ServletListener
 		{
 			final ServletContext servletContext = servletContextEvent.getServletContext();
 
-			//Honor the public URI property, if set 
+            log.info("Initializing OSLC4J Registry");
+
+			//Honor the public URI property, if set
 			String publicURI = OSLC4JUtils.getPublicURI();
 			String baseURI;
-			
-			if (publicURI == null || publicURI.isEmpty())
-				{
-				String scheme = System.getProperty(PROPERTY_SCHEME);
-				if (scheme == null)
-				{
-					scheme = servletContext.getInitParameter(PROPERTY_SCHEME);
-				}
-	
-				String port = System.getProperty(PROPERTY_PORT);
-				if (port == null)
-				{
-					port = servletContext.getInitParameter(PROPERTY_PORT);
-				}
-			   
-				baseURI = scheme + "://" + HOST + ":" + port + servletContext.getContextPath();
-			} else {
-				//Instead of the context in the publicUri, need to use context for the registry
-				URI uri = new URI(publicURI);
-				baseURI = uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort() + servletContext.getContextPath();
-			}
+
+            if (publicURI == null || publicURI.isEmpty()) {
+                String scheme = LyoConfigUtil.getOslcConfigProperty("scheme", DEFAULT_SCHEME, servletContext, ServletListener.class);
+                String host = LyoConfigUtil.getOslcConfigProperty("host", DEFAULT_HOST, servletContext, ServletListener.class);
+                String port = LyoConfigUtil.getOslcConfigProperty("port", DEFAULT_PORT, servletContext, ServletListener.class);
+
+                baseURI = scheme + "://" + host + ":" + port + servletContext.getContextPath();
+            } else {
+                //Instead of the context in the publicUri, need to use context for the registry
+                URI uri = new URI(publicURI);
+                baseURI = uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort() + servletContext.getContextPath();
+            }
 
 			final ServiceProvider serviceProvider = ServiceProviderFactory.createServiceProvider(baseURI);
 
@@ -101,22 +92,14 @@ public class ServletListener
 																													  serviceProvider);
 
 			serviceProviderIdentifier = registeredServiceProvider.getIdentifier();
+            log.info("Service Provider registered at '{}'", registeredServiceProvider.getAbout());
+            log.info("OSLC4J Registry started at '{}'", baseURI);
 		}
 		catch (final Exception exception)
 		{
-			logger.log(Level.SEVERE, "Unable to register with service provider catalog", exception);
+			log.error("Unable to register with service provider catalog", exception);
 		}
 	}
 
-	private static String getHost()
-	{
-		try
-		{
-			return InetAddress.getLocalHost().getCanonicalHostName();
-		}
-		catch (final UnknownHostException exception)
-		{
-			return "localhost";
-		}
-	}
+
 }

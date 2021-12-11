@@ -29,6 +29,10 @@ import org.apache.wink.client.RestClient;
 import org.apache.wink.client.handlers.ClientHandler;
 import org.eclipse.lyo.oslc4j.core.model.OslcMediaType;
 
+/**
+ * Deprecated, use {@link org.eclipse.lyo.client.OslcClient} instead.
+ */
+@Deprecated
 public final class OslcRestClient
 {
 	public static final int DEFAULT_READ_TIMEOUT = 60000;
@@ -71,8 +75,8 @@ public final class OslcRestClient
 		}
 
 		clientConfig.readTimeout(readTimeout);
-		
-		if ((handlers != null) && 
+
+		if ((handlers != null) &&
 			(handlers.length > 0))
 		{
 			clientConfig.handlers(handlers);

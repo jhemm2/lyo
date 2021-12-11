@@ -13,12 +13,13 @@
  */
 package org.eclipse.lyo.oslc4j.client;
 
-import java.net.InetAddress;
-import java.util.logging.Logger;
+import org.eclipse.lyo.core.utils.marshallers.LyoConfigUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class ServiceProviderRegistryURIs
 {
-	private static final Logger LOGGER = Logger.getLogger(ServiceProviderRegistryURIs.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(ServiceProviderRegistryURIs.class);
 
 	private static final String SYSTEM_PROPERTY_NAME_REGISTRY_URI = ServiceProviderRegistryURIs.class.getPackage().getName() + ".registryuri";
 	private static final String SYSTEM_PROPERTY_NAME_UI_URI		  = ServiceProviderRegistryURIs.class.getPackage().getName() + ".uiuri";
@@ -28,8 +29,8 @@ public final class ServiceProviderRegistryURIs
 
 	static
 	{
-		final String registryURI = System.getProperty(SYSTEM_PROPERTY_NAME_REGISTRY_URI);
-		final String uiURI		 = System.getProperty(SYSTEM_PROPERTY_NAME_UI_URI);
+		final String registryURI = LyoConfigUtil.getOslcConfigPropertyNoContext("registryuri", null, ServiceProviderRegistryURIs.class);
+		final String uiURI		 = LyoConfigUtil.getOslcConfigPropertyNoContext("uiuri", null, ServiceProviderRegistryURIs.class);
 
 		String defaultBase = null;
 
@@ -37,19 +38,9 @@ public final class ServiceProviderRegistryURIs
 			(uiURI == null))
 		{
 			// We need at least one default URI
+            String hostName = LyoConfigUtil.getOslcConfigPropertyNoContext("host", LyoConfigUtil.getHost(), ServiceProviderRegistryURIs.class);
 
-			String hostName = "localhost";
-
-			try
-			{
-				hostName = InetAddress.getLocalHost().getCanonicalHostName();
-			}
-			catch (final Exception exception)
-			{
-				// Default to localhost
-			}
-
-			defaultBase = "http://" + hostName + ":8080/";
+            defaultBase = "http://" + hostName + ":8080/";
 		}
 
 		if (registryURI != null)
@@ -65,7 +56,7 @@ public final class ServiceProviderRegistryURIs
 			// This also allows us to distinguish between array and single results within the ServiceProviderCatalogResource.
 			SERVICE_PROVIDER_REGISTRY_URI = defaultBase + "OSLC4JRegistry/catalog/singleton";
 
-			LOGGER.warning("System property '" + SYSTEM_PROPERTY_NAME_REGISTRY_URI + "' not set.  Using calculated value '" + SERVICE_PROVIDER_REGISTRY_URI + "'");
+			log.warn("System property '" + SYSTEM_PROPERTY_NAME_REGISTRY_URI + "' not set.  Using calculated value '" + SERVICE_PROVIDER_REGISTRY_URI + "'");
 		}
 
 		if (uiURI != null)
@@ -76,7 +67,7 @@ public final class ServiceProviderRegistryURIs
 		{
 			UI_URI = defaultBase + "OSLC4JUI";
 
-			LOGGER.warning("System property '" + SYSTEM_PROPERTY_NAME_UI_URI + "' not set.	Using calculated value '" + UI_URI + "'");
+            log.warn("System property '" + SYSTEM_PROPERTY_NAME_UI_URI + "' not set.	Using calculated value '" + UI_URI + "'");
 		}
 	}
 

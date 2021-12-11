@@ -111,26 +111,31 @@
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.13.1</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.jena</groupId>
         <artifactId>jena-tdb</artifactId>
         <version>${v.jena}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
         <version>${v.slf4j}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.glassfish.jersey.core</groupId>
         <artifactId>jersey-client</artifactId>
         <version>${v.jersey}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>com.j2bugzilla</groupId>
         <artifactId>j2bugzilla</artifactId>
         <version>2.2.1</version>
+        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
