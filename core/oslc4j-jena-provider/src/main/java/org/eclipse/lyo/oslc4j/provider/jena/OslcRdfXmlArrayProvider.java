@@ -55,7 +55,11 @@ public class OslcRdfXmlArrayProvider
 	@Override
 	public boolean isReadable(final Class<?> type, final Type genericType,
 			final Annotation[] annotations, final MediaType mediaType) {
-		return true;
+	    if (type.isArray()) {
+            return isReadable(type.getComponentType(), mediaType, OslcMediaType.APPLICATION_RDF_XML_TYPE,
+                    OslcMediaType.APPLICATION_XML_TYPE, OslcMediaType.TEXT_XML_TYPE);
+        }
+        return false;
 	}
 
 	@Override
